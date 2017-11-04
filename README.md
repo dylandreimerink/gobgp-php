@@ -1,12 +1,13 @@
 # GoBGP-PHP
-A PHP wrapper for the GoBGP gRPC client
+A PHP wrapper for the [GoBGP](https://github.com/osrg/gobgp) gRPC client
 
 ## Requirements
 * PHP 7
 * The gRPC PHP extension: https://pecl.php.net/package/gRPC 
 
 ## Installation
-TODO: make installation instruction for composer
+1. Install the gRPC PHP extension by following these [installation instructions](https://grpc.io/docs/quickstart/php.html#prerequisites)
+2. require the package: `composer require dylandreimerink/gobgp-php`
 
 ## Goals
 This project was made for 2 main reasons:
