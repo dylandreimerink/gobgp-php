@@ -45,6 +45,26 @@ class FlowspecMatchNumeric extends FlowspecMatch
 			}
 		}
 
+		if ($this->getType()->getVal() == FlowspecMatchType::TCP_FLAG &&
+				!($part instanceof FlowspecMatchTCPFlagPart)
+		){
+			throw new \Exception("Match part must be of type FlowspecMatchTCPFlagPart if match type is TCP_FLAG");
+		}
+
+
+		if ($this->getType()->getVal() == FlowspecMatchType::DSCP &&
+			!($part instanceof FlowspecMatchDscpPart)
+		){
+			throw new \Exception("Match part must be of type FlowspecMatchDscpPart if match type is DSCP");
+		}
+
+
+		if ($this->getType()->getVal() == FlowspecMatchType::FRAGMENT &&
+			!($part instanceof FlowspecMatchFragmentType)
+		){
+			throw new \Exception("Match part must be of type FlowspecMatchFragmentType if match type is FRAGMENT");
+		}
+
 		$this->parts[] = $part;
 	}
 
@@ -131,10 +151,10 @@ class FlowspecMatchNumeric extends FlowspecMatch
 					$newPart = FlowspecMatchTCPFlagPart::fromBytes($bytes);
 				break;
 				case FlowspecMatchType::FRAGMENT:
-					//TODO: ADD fragment match part
+					$newPart = FlowspecMatchFragmentPart::fromBytes($bytes);
 					break;
 				case FlowspecMatchType::DSCP:
-					//TODO Add DSCP match part->setUrg((($value & 0x20) >> 5) == 1)
+					$newPart = FlowspecMatchDscpPart::fromBytes($bytes);
 					break;
 				default:
 					$newPart = FlowspecMatchNumericPart::fromBytes($bytes);
