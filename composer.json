@@ -1,6 +1,7 @@
 {
   "name": "dylandreimerink/gobgp-php",
   "type": "library",
+  "license": "MIT",
   "require": {
     "php": ">=7.0.0",
     "google/protobuf": ">=3.4.1",
