@@ -9,6 +9,8 @@
 namespace Gobgp\Flowspec;
 
 use Gobgp\Bgp\AFI;
+use Gobgp\Bgp\ExtendedCommunity;
+use Gobgp\Bgp\PathAttribute;
 use Gobgp\Bgp\RouteFamily;
 use Gobgp\Bgp\SAFI;
 use Leth\IPAddress\IPv6\Address;
@@ -61,17 +63,17 @@ class FlowspecRoute
 	}
 
 	/**
-	 * @return mixed
+	 * @return FlowspecAction
 	 */
-	public function getAction()
+	public function getAction() : FlowspecAction
 	{
 		return $this->action;
 	}
 
 	/**
-	 * @param mixed $action
+	 * @param FlowspecAction $action
 	 */
-	public function setAction($action)
+	public function setAction(FlowspecAction $action)
 	{
 		$this->action = $action;
 
@@ -197,6 +199,38 @@ class FlowspecRoute
 			$route->addMatch($c);
 			$data = array_slice($data, $c->byteCount());
 			$i -= $c->byteCount();
+		}
+
+		foreach($attributes as $attribute){
+			$attrData = [];
+			foreach (str_split($attribute) as $byte) {
+				$attrData[] = ord($byte);
+			}
+
+			$flags  = $attrData[0];
+			$type   = $attrData[1];
+			$length = $attrData[2];
+
+			$attrData = array_slice($attrData, 3);
+
+			if($attrData < $length){
+				throw new \Exception("Missing bytes, can't parse path attributes");
+			}
+
+			switch ($type){
+				case PathAttribute::EXTENDED_COMMUNITIES:
+					$extcomType = $attrData[0] << 8 | $attrData[1];
+					switch ($extcomType){
+						case ExtendedCommunity::TRAFFIC_RATELIMIT:
+						case ExtendedCommunity::TRAFFIC_ACTION:
+						case ExtendedCommunity::REDIRECT:
+						case ExtendedCommunity::TRAFFIC_MARK:
+							dump($attrData);
+							$route->setAction(FlowspecAction::fromBytes($attrData));
+							break;
+					}
+					break;
+			}
 		}
 
 		return $route;
