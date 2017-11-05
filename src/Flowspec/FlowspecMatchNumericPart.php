@@ -72,6 +72,8 @@ class FlowspecMatchNumericPart implements FlowspecMatchPartInterface
 	public function setListEnd(bool $listEnd)
 	{
 		$this->listEnd = $listEnd;
+
+		return $this;
 	}
 
 	/**
@@ -88,6 +90,8 @@ class FlowspecMatchNumericPart implements FlowspecMatchPartInterface
 	public function setAnd(bool $and)
 	{
 		$this->and = $and;
+
+		return $this;
 	}
 
 	/**
@@ -104,10 +108,12 @@ class FlowspecMatchNumericPart implements FlowspecMatchPartInterface
 	public function setLength(int $length)
 	{
 		if ($length < 1 || $length > 2) {
-			throw new \Exception("FlowspecMatchIPPart length can only be 1 or 2");
+			throw new \Exception("FlowspecMatchNumericPart length can only be 1 or 2");
 		}
 
 		$this->length = $length;
+
+		return $this;
 	}
 
 	/**
@@ -124,6 +130,8 @@ class FlowspecMatchNumericPart implements FlowspecMatchPartInterface
 	public function setOperator(FlowspecMatchNumericOperator $operator)
 	{
 		$this->operator = $operator;
+
+		return $this;
 	}
 
 	/**
@@ -149,6 +157,8 @@ class FlowspecMatchNumericPart implements FlowspecMatchPartInterface
 			}
 		}
 		$this->value = $value;
+
+		return $this;
 	}
 
 	public function toBytes()
@@ -183,9 +193,9 @@ class FlowspecMatchNumericPart implements FlowspecMatchPartInterface
 
 		$op = $bytes[0];
 
-		$endOfList = (($op & 0x80) >> 7) == 1;
-		$and = (($op & 0x40) >> 6) == 1;
-		$length = (($op & 0x10) >> 4) == 1 ? 2 : 1;
+		$endOfList  = (($op & 0x80) >> 7) == 1;
+		$and        = (($op & 0x40) >> 6) == 1;
+		$length     = (($op & 0x10) >> 4) == 1 ? 2 : 1;
 
 		try {
 			$numOp = FlowspecMatchNumericOperator::get($op & 0x07);

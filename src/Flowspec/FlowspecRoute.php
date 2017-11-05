@@ -27,14 +27,28 @@ class FlowspecRoute
 		$this->setRouteFamily($rf);
 	}
 
-	public function getMatchs()
+	public function getMatchs() : array
 	{
 		return $this->matches;
+	}
+
+	public function getMatch(FlowspecMatchType $matchType) : FlowspecMatch {
+		if($this->hasMatch($matchType)) {
+			return $this->matches[$matchType->getVal()];
+		}else{
+			return null;
+		}
+	}
+
+	public function hasMatch(FlowspecMatchType $matchType){
+		return isset($this->matches[$matchType->getVal()]);
 	}
 
 	public function addMatch(FlowspecMatch $match)
 	{
 		$this->matches[$match->getType()->getVal()] = $match;
+
+		return $this;
 	}
 
 	public function removeMatch($index)
@@ -42,6 +56,8 @@ class FlowspecRoute
 		if (isset($this->matches[$index])) {
 			unset($this->matches[$index]);
 		}
+
+		return $this;
 	}
 
 	/**
@@ -58,6 +74,8 @@ class FlowspecRoute
 	public function setAction($action)
 	{
 		$this->action = $action;
+
+		return $this;
 	}
 
 	/**
@@ -84,6 +102,8 @@ class FlowspecRoute
 		} else {
 			throw new \Exception("Invalid route family, must be a FlowSpec route family");
 		}
+
+		return $this;
 	}
 
 	public function toBytes()
@@ -100,7 +120,7 @@ class FlowspecRoute
 			$data[] = ord($byte);
 		}
 
-		dump($data);
+		//dump($data);
 
 		if ($data[0] >> 4 == 0xf && count($data) > 2) {
 			$length = $data[0] << 8 | $data[1];
@@ -146,16 +166,10 @@ class FlowspecRoute
 				case FlowspecMatchType::ICMP_TYPE:
 				case FlowspecMatchType::ICMP_CODE:
 				case FlowspecMatchType::PKT_LEN:
-					$c = FlowspecMatchNumeric::fromBytes($data);
-					break;
-				case FlowspecMatchType::TCP_FLAG:
-					//TODO add flowspec match for tcp flags
-					break;
 				case FlowspecMatchType::DSCP:
-					//TODO add flowspec match for DSCP
-					break;
+				case FlowspecMatchType::TCP_FLAG:
 				case FlowspecMatchType::FRAGMENT:
-					//TODO add flowspec match for fragement
+					$c = FlowspecMatchNumeric::fromBytes($data);
 					break;
 
 				case FlowspecMatchType::LABEL:
@@ -179,8 +193,6 @@ class FlowspecRoute
 				default:
 					//TODO $c = UnknownMatch
 			}
-
-			dump($c->toBytes());
 
 			$route->addMatch($c);
 			$data = array_slice($data, $c->byteCount());

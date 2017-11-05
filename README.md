@@ -1,5 +1,6 @@
 # GoBGP-PHP
-A PHP wrapper for the [GoBGP](https://github.com/osrg/gobgp) gRPC client
+A PHP wrapper for the [GoBGP](https://github.com/osrg/gobgp
+) gRPC client
 
 ## Requirements
 * PHP 7

@@ -38,14 +38,18 @@ class RibRequest
 		return $response->getTable()->getDestinations();
 	}
 
-	static function getFlowspecRoutes(ApiClient $client, $routeFamily = RouteFamily::FLOWSPEC_IPv4_UNICAST)
+	static function getFlowspecRoutes(ApiClient $client, $routeFamily = RouteFamily::FLOWSPEC_IPv4_UNICAST) : array
 	{
 		$destinations = RibRequest::getRib($client, RouteFamily::get($routeFamily), Resource::get(Resource::GLOBAL));
 
-		$paths = $destinations[0]->getPaths();
+		$routes = [];
 
-		$route = FlowspecRoute::fromBytes(RouteFamily::get($routeFamily), $paths[0]->getNlri(), $paths[0]->getPattrs());
+		foreach ($destinations as $destination) {
+			$paths = $destination->getPaths();
 
-		dump($route);
+			$routes[] = FlowspecRoute::fromBytes(RouteFamily::get($routeFamily), $paths[0]->getNlri(), $paths[0]->getPattrs());
+		}
+
+		return $routes;
 	}
 }

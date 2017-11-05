@@ -15,19 +15,19 @@ class FlowspecMatchNumeric extends FlowspecMatch
 {
 
 	/*
-	 * @var parts FlowspecMatchNumericPart[]
+	 * @var parts FlowspecMatchNumericPartInterface[]
 	 */
 	private $parts = [];
 
 	/*
-	 * @return parts FlowspecMatchNumericPart[]
+	 * @return parts FlowspecMatchNumericPartInterface[]
 	 */
 	public function getParts(): array
 	{
 		return $this->parts;
 	}
 
-	public function addPart(FlowspecMatchNumericPart $part)
+	public function addPart(FlowspecMatchPartInterface $part)
 	{
 		if (count($this->parts) == 0) {
 			if ($part->isAnd()) {
@@ -78,7 +78,10 @@ class FlowspecMatchNumeric extends FlowspecMatch
 			FlowspecMatchType::SRC_PORT,
 			FlowspecMatchType::ICMP_TYPE,
 			FlowspecMatchType::ICMP_CODE,
-			FlowspecMatchType::PKT_LEN
+			FlowspecMatchType::PKT_LEN,
+			FlowspecMatchType::DSCP,
+			FlowspecMatchType::TCP_FLAG,
+			FlowspecMatchType::FRAGMENT
 		])) {
 			throw new \Exception("Match type is not a numeric match type");
 		}
@@ -123,8 +126,19 @@ class FlowspecMatchNumeric extends FlowspecMatch
 		}
 
 		while (count($bytes) > 0) {
-			$newPart = FlowspecMatchNumericPart::fromBytes($bytes);
-
+			switch ($numMatch->getType()->getVal()) {
+				case FlowspecMatchType::TCP_FLAG:
+					$newPart = FlowspecMatchTCPFlagPart::fromBytes($bytes);
+				break;
+				case FlowspecMatchType::FRAGMENT:
+					//TODO: ADD fragment match part
+					break;
+				case FlowspecMatchType::DSCP:
+					//TODO Add DSCP match part->setUrg((($value & 0x20) >> 5) == 1)
+					break;
+				default:
+					$newPart = FlowspecMatchNumericPart::fromBytes($bytes);
+			}
 			$numMatch->addPart($newPart);
 
 			$bytes = array_slice($bytes, 1 + $newPart->getLength());
